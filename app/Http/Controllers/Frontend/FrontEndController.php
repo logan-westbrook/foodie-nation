@@ -14,6 +14,5 @@ class FrontEndController extends Controller
         $sliders = Slider::where('status', 1)->get();
 
         return view('frontend.home.index', compact('sliders'));
-        //return view('frontend.layouts.master');
     }
 }

@@ -39,15 +39,13 @@ class SliderDataTable extends DataTable
                     HTML;
             })
             ->addColumn('status', function($query) {
-                if ($query->status === 1) {
-                    return <<<HTML
+                return $query->status === 1
+                    ? <<<HTML
                         <span class="badge badge-primary">Active</span>
+                        HTML
+                    : <<<HTML
+                        <span class="badge badge-danger">Inactive</span>
                         HTML;
-                }
-
-                return <<<HTML
-                    <span class="badge badge-danger">Inactive</span>
-                    HTML;
             })
             ->rawColumns([ 'image', 'action', 'status'])
             ->setRowId('id');
@@ -109,10 +107,10 @@ class SliderDataTable extends DataTable
             Column::make('title'),
             Column::make('status'),
             Column::computed('action')
-                 ->exportable(false)
-                 ->printable(false)
-                 ->width(150)
-                 ->addClass('text-center'),
+                ->exportable(false)
+                ->printable(false)
+                ->width(150)
+                ->addClass('text-center'),
         ];
     }
 
