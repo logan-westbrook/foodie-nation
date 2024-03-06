@@ -85,7 +85,7 @@
                             class="form-control"
                         >
                             <option
-                                @selected($slider->status ===1)
+                                @selected($slider->status === 1)
                                 value="1"
                             >
                                 Active

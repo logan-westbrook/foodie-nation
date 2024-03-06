@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Slider;
+use App\Traits\HtmlCreatorTrait;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,6 +13,8 @@ use Yajra\DataTables\Services\DataTable;
 
 class SliderDataTable extends DataTable
 {
+    use HtmlCreatorTrait;
+
     /**
      * Build the DataTable class.
      *
@@ -20,50 +23,20 @@ class SliderDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($query) {
-                $deleteButton = $this->createButton(
-                    'destroy',
+            ->addColumn('action', fn($query) =>
+                $this->createEditDeleteActionButtons(
                     $query->id,
-                    'trash',
-                    'btn-danger delete-item'
-                );
-
-                return <<<HTML
-                    {$this->createButton('edit', $query->id, 'edit', 'btn-primary')}
-                    $deleteButton
-                    HTML;
-            })
-            ->addColumn('image', function($query) {
-                return <<<HTML
-                    <img width="100" height="100" src="$query->image" alt="image">
-                    HTML;
-            })
-            ->addColumn('status', function($query) {
-                return $query->status === 1
-                    ? <<<HTML
-                        <span class="badge badge-primary">Active</span>
-                        HTML
-                    : <<<HTML
-                        <span class="badge badge-danger">Inactive</span>
-                        HTML;
-            })
-            ->rawColumns([ 'image', 'action', 'status'])
+                    'admin.slider.',
+                )
+            )
+            ->addColumn('image', fn($query) =>
+                $this->createImage($query->image)
+            )
+            ->addColumn('status', fn($query) =>
+                $this->createStatusHtml($query->status)
+            )
+            ->rawColumns([ 'image', 'action', 'status' ])
             ->setRowId('id');
-    }
-
-    protected static function createButton(
-        string $route,
-        int $id,
-        string $iconType,
-        string $classes = ''
-    ): string {
-        $link = route("admin.slider.$route", $id);
-
-        return <<<HTML
-            <a href="$link" class="ml-2 btn $classes">
-                <i class="fas fa-$iconType"></i>
-            </a>
-            HTML;
     }
 
     /**
@@ -103,7 +76,9 @@ class SliderDataTable extends DataTable
     {
         return [
             Column::make('id')->width(60),
-            Column::make('image')->width(150)->class('image-holder'),
+            Column::make('image')
+                ->width(self::ACTION_WIDTH)
+                ->class('image-holder'),
             Column::make('title'),
             Column::make('status'),
             Column::computed('action')

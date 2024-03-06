@@ -16,7 +16,7 @@ trait FileUploadTrait
         if (!$request->hasFile($inputName)) {
             return null;
         }
-        
+
         self::removeImage($oldPath);
         $image = $request->{$inputName};
         $imageName = 'media_' . uniqid() . '.' . $image->getClientOriginalExtension();

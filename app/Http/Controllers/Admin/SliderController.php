@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\DataTables\SliderDataTable;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AbstractController;
 use App\Http\Requests\Admin\Slider\SliderCreateRequest;
 use App\Http\Requests\Admin\Slider\SliderUpdateRequest;
 use App\Models\Slider;
@@ -10,10 +10,11 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
-use Throwable;
 
-class SliderController extends Controller
+class SliderController extends AbstractController
 {
+    protected const string ROUTE = 'admin.slider.index';
+
     /**
      * Display a listing of the resource.
      */
@@ -37,7 +38,10 @@ class SliderController extends Controller
     {
         Slider::createNewSliderFromRequest($request);
 
-        return $this->redirectSuccess('A new slider was successfully created!!!');
+        return $this->redirectSuccess(
+            'A new slider was successfully created!!!',
+            self::ROUTE
+        );
     }
 
     /**
@@ -66,7 +70,10 @@ class SliderController extends Controller
         /** @var Slider $slider */
         Slider::findOrFail($id)->updateSliderFromRequest($request);
 
-        return $this->redirectSuccess('Slider has been successfully update!!!');
+        return $this->redirectSuccess(
+            'Slider has been successfully update!!!',
+            self::ROUTE
+        );
     }
 
     /**
@@ -74,28 +81,11 @@ class SliderController extends Controller
      */
     public function destroy(string $id): Response
     {
-        try {
-            Slider::findOrFail($id)->deleteSlider();
-            $message = 'Your slider was successfully deleted!!!';
-            $status = 200;
-        } catch (Throwable $t) {
-            $message = 'An Error Occurred during deletion. Please try again';
-            $status = 500;
-            $content = [ 'error' => $t->getMessage() ];
-        } finally {
-            $content = array_merge(
-                $content ?? [],
-                [ 'status' => $status, 'message' => $message ]
-            );
-
-            return response($content, $status);
-        }
+        return $this->delete($id);
     }
 
-    protected function redirectSuccess(string $message): RedirectResponse
+    protected static function deleteEntity(string $id): void
     {
-        toastr()->success($message);
-
-        return to_route('admin.slider.index');
+        Slider::findOrFail($id)->deleteSlider();
     }
 }
