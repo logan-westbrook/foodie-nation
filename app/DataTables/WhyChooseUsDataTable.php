@@ -2,16 +2,20 @@
 
 namespace App\DataTables;
 
-use App\Models\Slider;
+use App\Models\WhyChooseU;
+use App\Models\WhyChooseUs;
 use App\Traits\HtmlCreatorTrait;
+use HTML5;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
+use Yajra\DataTables\Html\Editor\Editor;
+use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class SliderDataTable extends DataTable
+class WhyChooseUsDataTable extends DataTable
 {
     use HtmlCreatorTrait;
 
@@ -23,26 +27,26 @@ class SliderDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->addColumn('icon', fn($query) =>
+                $this->createIcon($query->icon)
+            )
             ->addColumn('action', fn($query) =>
                 $this->createEditDeleteActionButtons(
                     $query->id,
-                    'admin.slider.',
+                    'admin.why-choose-us',
                 )
-            )
-            ->addColumn('image', fn($query) =>
-                $this->createImage($query->image)
             )
             ->addColumn('status', fn($query) =>
                 $this->createStatusHtml($query->status)
             )
-            ->rawColumns([ 'image', 'action', 'status' ])
+            ->rawColumns([ 'icon', 'action', 'status' ])
             ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(Slider $model): QueryBuilder
+    public function query(WhyChooseUs $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -53,11 +57,11 @@ class SliderDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('slider-table')
+                    ->setTableId('why-choose-us-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     //->dom('Bfrtip')
-                    ->orderBy(0)
+                    ->orderBy(0, 'asc')
                     ->selectStyleSingle()
                     ->buttons([
                         Button::make('excel'),
@@ -75,16 +79,15 @@ class SliderDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id')->width(60),
-            Column::make('image')
-                ->width(self::ACTION_WIDTH)
-                ->class('image-holder'),
+            Column::make('id'),
+            Column::make('icon'),
             Column::make('title'),
+            Column::make('short_description'),
             Column::make('status'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(150)
+                ->width(self::ACTION_WIDTH)
                 ->addClass('text-center'),
         ];
     }
@@ -94,6 +97,6 @@ class SliderDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Slider_' . date('YmdHis');
+        return 'WhyChooseUs_' . date('YmdHis');
     }
 }

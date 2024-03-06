@@ -12,7 +12,7 @@
     <!--=============================
             WHY CHOOSE START
         ==============================-->
-        @include('frontend.home.components.why_choose')
+@include('frontend.home.components.why_choose')
     <!--=============================
             WHY CHOOSE END
         ==============================-->
